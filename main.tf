@@ -21,6 +21,14 @@ resource "aws_security_group" "ec2_rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Ingress rule to allow inbound traffic on port 3306 from the security group itself (RDS to EC2)
+ ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    self        = true
+  }
+
   # Outbound rule to allow all traffic
   egress {
     from_port   = 0
@@ -74,8 +82,8 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker ubuntu
 
-sudo docker pull wordpress:php7.4-fpm
-sudo docker run -d --name wordpress_container -p 80:80 -e WORDPRESS_DB_HOST=${aws_db_instance.rds_instance.endpoint} -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=password -e WORDPRESS_DB_NAME=my_wordpress_db wordpress:php7.4-fpm
+docker pull wordpress
+docker run -d --name wordpress_container -p 80:80 -e WORDPRESS_DB_HOST=${aws_db_instance.rds_instance.endpoint} -e WORDPRESS_DB_USER=admin -e WORDPRESS_DB_PASSWORD=password -e WORDPRESS_DB_NAME=my_wordpress_db wordpress:latest
 EOF
 }
 
